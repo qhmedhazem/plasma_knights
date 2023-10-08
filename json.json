@@ -1,0 +1,7 @@
+{
+  "event": "finished",
+  "data": {
+    "coordinates_tests": { "count": 0, "data": [] },
+    "lmn_tests": { "count": 0, "data": [] }
+  }
+}
