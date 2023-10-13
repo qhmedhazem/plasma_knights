@@ -79,3 +79,23 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+::-webkit-scrollbar {
+  width: 4px; /* Set the width of the scrollbar */
+}
+
+/* Define the scrollbar track */
+::-webkit-scrollbar-track {
+  background: transparent; /* Set the background color of the track */
+}
+
+/* Define the scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background: rgb(59 130 246); /* Set the color of the thumb */
+  border-radius: 1000000px;
+}
+
+/* On hover, make the thumb darker */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(59 130 246 / 0.9);
+}

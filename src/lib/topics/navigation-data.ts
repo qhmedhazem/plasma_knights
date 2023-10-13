@@ -188,30 +188,37 @@ const NavData = [
   {
     name: "Sun",
     data: Sun,
+    href: "/topics/sun",
   },
   {
     name: "Plasma Components",
     data: PlasmaComponents,
+    href: "/topics/plasma_components",
   },
   {
     name: "IMF Parameters",
     data: IMFParamaters,
+    href: "/topics/imf_parameters",
   },
   {
     name: "Earth",
     data: Earth,
+    href: "/topics/earth",
   },
   {
     name: "Magnetic Reconnection",
     data: MagneticReconnection,
+    href: "/topics/magnetic_reconnection",
   },
   {
     name: "Spacecrafts",
     data: Spacecrafts,
+    href: "/topics/spacecrafts",
   },
   {
     name: "Space Weather Effects",
     data: SpaceWeatherEffects,
+    href: "/topics/space_weather_effects",
   },
 ];
 

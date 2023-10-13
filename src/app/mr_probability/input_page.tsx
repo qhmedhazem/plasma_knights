@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2, PieChart } from "lucide-react";
+import { Loader2, PieChart } from "lucide-react";
+import { z } from "zod";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -15,49 +16,54 @@ import {
 } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select";
-import { SpaceCraftList } from "@/lib/topics/navigation-data";
-import {
-  Input as InputInterface,
-  Probe,
-  useProbabilityStore,
-} from "@/store/probability-store";
+import { useProbabilityStore } from "@/store/probability-store";
 // import useIpc from "@/hooks/use-ipc";
 // import useSocket from "@/hooks/use-socket";
 import useIpc from "@/hooks/use-ipc";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type CardProps = React.ComponentProps<typeof Card> & {
   disabled?: boolean;
 };
 
-export function InputPage({ className, disabled, ...props }: CardProps) {
-  const pushEvent = useProbabilityStore((state) => state.pushEvent);
-  const { requestData } = useIpc();
+const dateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format");
 
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
-  const [spacecraft, setSpacecraft] = useState<Probe>("WIND");
+const schema = z.object({
+  startDate: dateSchema,
+  endDate: dateSchema,
+});
+
+type schemaType = z.infer<typeof schema>;
+
+export default function InputPage({
+  className,
+  disabled,
+  ...props
+}: CardProps) {
+  const { requestData } = useIpc();
+  const {
+    formState: { errors },
+    handleSubmit,
+    reset,
+    register,
+  } = useForm<schemaType>({
+    resolver: zodResolver(schema),
+  });
 
   const status = useProbabilityStore((state) => state.status);
   const message = useProbabilityStore((state) => state.current_message);
 
-  const submit = (e: any) => {
-    e.preventDefault();
+  const onSubmit = (data: schemaType) => {
     if (!requestData) return;
-    requestData(startDate, endDate, spacecraft);
+    requestData(data.startDate, data.endDate);
   };
 
   return (
     <Card className={cn("w-[380px]", className)} {...props}>
-      <form className="flex flex-col gap-4" onSubmit={submit}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <CardHeader>
           <CardTitle>MR Events Analazyer</CardTitle>
           <CardDescription>
@@ -69,49 +75,26 @@ export function InputPage({ className, disabled, ...props }: CardProps) {
           <div className="flex flex-col gap-2">
             <label className="text-sm font-semibold">Start Date</label>
             <Input
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
               type="text"
-              placeholder="2000-12-30"
-              required={true}
+              placeholder="2000-01-01"
               disabled={disabled}
+              {...register("startDate", { required: true })}
             />
+            {errors.startDate && (
+              <p className="text-red-400">{errors.startDate.message}</p>
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-sm font-semibold">End Date</label>
             <Input
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
               type="text"
-              placeholder="2001-12-30"
-              required={true}
+              placeholder="2000-01-30"
               disabled={disabled}
+              {...register("endDate", { required: true })}
             />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold">Spacecraft</label>
-            <Select
-              value={spacecraft}
-              onValueChange={(value: Probe) => setSpacecraft(value)}
-              disabled={disabled}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a spacecraft" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {SpaceCraftList.map((spacecraft) => (
-                    <SelectItem
-                      key={spacecraft}
-                      value={spacecraft}
-                      disabled={spacecraft !== "WIND"}
-                    >
-                      {spacecraft}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            {errors.endDate && (
+              <p className="text-red-400">{errors.endDate.message}</p>
+            )}
           </div>
         </CardContent>
         <CardFooter>
@@ -120,7 +103,10 @@ export function InputPage({ className, disabled, ...props }: CardProps) {
               <Button className="w-full" type="submit" disabled>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading
               </Button>
-              {message && status ? <p>{message}</p> : null}
+              {message && status === "error" ? (
+                <p className="text-red-500">{message}</p>
+              ) : null}
+              {message && status !== "error" ? <p>{message}</p> : null}
             </div>
           ) : (
             <div className="flex flex-col gap-1 w-full">

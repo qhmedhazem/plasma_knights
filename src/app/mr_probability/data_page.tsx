@@ -15,16 +15,18 @@ import {
 
 import { useProbabilityStore } from "@/store/probability-store";
 import useIpc from "@/hooks/use-ipc";
+import { usePopupStore } from "@/store/popup-store";
 
 type CardProps = React.ComponentProps<typeof Card>;
 
-export function DataPage({ className, ...props }: CardProps) {
+export default function DataPage({ className, ...props }: CardProps) {
   const response = useProbabilityStore((state) => state.response);
   const status = useProbabilityStore((state) => state.status);
   const message = useProbabilityStore((state) => state.current_message);
   const isProcessOpen = useProbabilityStore((state) => state.is_open);
   const reset = useProbabilityStore((state) => state.reset);
   const { showPlot, exitProcess } = useIpc();
+  const openResultsPopup = usePopupStore((state) => state.open);
 
   return (
     <div className="">
@@ -54,28 +56,25 @@ export function DataPage({ className, ...props }: CardProps) {
           <div className="flex flex-col gap-1 w-full">
             <Button
               className="w-full"
-              disabled={!isProcessOpen || !showPlot}
-              onClick={showPlot && isProcessOpen ? () => showPlot() : undefined}
+              disabled={!isProcessOpen}
+              onClick={isProcessOpen ? () => openResultsPopup() : undefined}
             >
-              <BarChart3 className="mr-2 h-4 w-4" /> Show Plot
+              <BarChart3 className="mr-2 h-4 w-4" /> Show Results Editor
             </Button>
             <Button
               className="w-full"
-              disabled={!isProcessOpen || !exitProcess}
+              disabled={!exitProcess}
               onClick={
-                exitProcess && isProcessOpen ? () => exitProcess() : undefined
+                exitProcess
+                  ? () => {
+                      exitProcess();
+                      reset();
+                    }
+                  : undefined
               }
             >
-              <X className="mr-2 h-4 w-4" /> End Python Process
-            </Button>
-            <Button
-              className="w-full"
-              onClick={() => {
-                exitProcess?.();
-                reset?.();
-              }}
-            >
-              <LucideChevronLeftSquare className="mr-2 h-4 w-4" /> Return
+              <LucideChevronLeftSquare className="mr-2 h-4 w-4" /> End Process
+              and Return
             </Button>
             {status === "error" ? (
               <span className="text-red-500">{message}</span>

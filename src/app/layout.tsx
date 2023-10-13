@@ -3,10 +3,14 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import ThemeProvider from "@/context/theme-context";
-import { SidebarNav } from "@/components/Sidebar/SidebarNav";
 import DataDeliveryWrapper from "@/context/data-delivery-wrapper";
 import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
+import Navbar from "@/components/Navbar/Navbar";
+import dynamic from "next/dynamic";
+const PopupOverlay = dynamic(() => import("@/components/Popup/PopupOverlay"), {
+  ssr: false,
+});
 
 const rubik = Inter({ subsets: ["latin"] });
 
@@ -43,15 +47,14 @@ export default function RootLayout({
           />
           {/* <SocketProvider> */}
           <DataDeliveryWrapper>
-            <div className="grid grid-cols-[320px_1fr]">
+            <div className="overflow-hidden lg:grid lg:grid-cols-[320px_1fr]">
               <SideBar />
-              <div className="max-h-screen overflow-y-scroll">
-                <div className="py-6 w-full">
-                  <SidebarNav />
-                </div>
-                <div className="py-12 m-[0_auto] max-w-3xl">{children}</div>
+              <div className="max-h-screen overflow-y-scroll w-full">
+                <Navbar />
+                <div className="py-8 px-16">{children}</div>
               </div>
             </div>
+            <PopupOverlay />
           </DataDeliveryWrapper>
           {/* </SocketProvider> */}
         </ThemeProvider>

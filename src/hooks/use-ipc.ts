@@ -7,11 +7,8 @@ type showPlotFunc = () => any;
 type exitProcessFunc = () => any;
 type setupDataListner = (callback: requestDataCallback) => any;
 
-type requestDataFunc = (
-  start_date: string,
-  end_date: string,
-  probe: Probe
-) => void;
+type requestPlotImg = (data: any) => any;
+type requestDataFunc = (start_date: string, end_date: string) => void;
 
 interface IpcPayload {
   event: string;
@@ -23,6 +20,7 @@ interface IpcHook {
   showPlot?: showPlotFunc;
   exitProcess?: exitProcessFunc;
   setupDataListner?: setupDataListner;
+  requestPlotImg?: requestPlotImg;
 }
 
 const useIpc = (): IpcHook => {
@@ -35,8 +33,16 @@ const useIpc = (): IpcHook => {
     const exitProcess = window?.mrProbability?.exitProcess;
     // @ts-ignore
     const setupDataListner = window?.mrProbability?.setupDataListner;
+    // @ts-ignore
+    const requestPlotImg = window?.mrProbability?.requestPlotImg;
 
-    return { requestData, showPlot, exitProcess, setupDataListner };
+    return {
+      requestData,
+      showPlot,
+      exitProcess,
+      setupDataListner,
+      requestPlotImg,
+    };
   } else {
     return {};
   }

@@ -1,12 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import {
-  Event,
-  EventData,
-  useProbabilityStore,
-} from "../store/probability-store";
+import { Event, useProbabilityStore } from "../store/probability-store";
 import useIpc from "@/hooks/use-ipc";
 
 interface DataDeliveryWrapperProps {
