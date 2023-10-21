@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import { PanInfo, motion, useMotionValue, useTransform } from "framer-motion";
 import { usePopupStore } from "@/store/popup-store";
 import { Button } from "../ui/Button";
@@ -8,7 +8,11 @@ import { X } from "lucide-react";
 import PlotImg from "../Analyzer/PlotImg";
 import PlotControls from "../Analyzer/PlotControls";
 
-const PopupOverlay = () => {
+interface Props {
+  children: React.ReactNode;
+}
+
+const PopupOverlay: FC<Props> = ({ children }) => {
   const isOpen = usePopupStore((state) => state.isOpen);
   const closePopup = usePopupStore((state) => state.close);
 
@@ -24,7 +28,6 @@ const PopupOverlay = () => {
     info: PanInfo
   ) => {
     setDragging(false);
-    console.log(y.get());
     if (y.get() > 120) {
       closePopup();
     }
@@ -51,7 +54,7 @@ const PopupOverlay = () => {
       initial="closed"
       exit="closed"
       animate={isOpen ? "open" : "closed"}
-      className="overflow-y-auto flex flex-col justify-end absolute top-0 z-50 w-full h-full"
+      className="flex flex-col justify-end absolute top-0 left-0 z-50 w-full h-full max-h-screen"
     >
       <motion.div
         // style={{ y }}
@@ -59,7 +62,7 @@ const PopupOverlay = () => {
         // dragConstraints={{ top: 0, bottom: 0 }}
         // onDragStart={handleDragStart}
         // onDragEnd={handleDragEnd}
-        className="min-h-full overflow-y-auto rounded-t-lg bg-background border-border border-spacing-0.5 border w-auto h-auto max-h-full"
+        className="overflow-y-auto min-h-full rounded-t-lg bg-background border-border border-spacing-0.5 border w-auto h-auto"
       >
         <div className="flex items-center justify-between py-4 px-8 text-3xl w-full">
           <span>Results</span>
@@ -72,9 +75,8 @@ const PopupOverlay = () => {
           </Button>
         </div>
         {/* {isOpen && ( */}
-        <div className="flex flex-col xl:flex-row gap-8 space-between w-full py-8 px-8">
-          <PlotControls />
-          <PlotImg />
+        <div className="max-h-full flex flex-col-reverse xl:flex-row xl:items-start gap-8 space-between w-full py-8 px-8">
+          {children}
         </div>
         {/* )} */}
       </motion.div>

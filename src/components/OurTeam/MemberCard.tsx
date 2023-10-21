@@ -23,7 +23,7 @@ const MemberCard: FC<Props> = ({
   return (
     <figure className="flex-1 bg-muted rounded-lg overflow-hidden transition-all shadow-md hover:shadow-xl">
       <div>
-        <img src={image_url} className="w-full" />
+        <img src={image_url} alt={full_name} className="w-full" />
       </div>
       <div className="py-4 px-2">
         <div className="text-center">

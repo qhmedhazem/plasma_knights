@@ -1,46 +1,41 @@
 "use client";
-import React, { FC, useState } from "react";
-import { Button } from "../ui/Button";
+import React, { FC, useMemo, useState } from "react";
 import { ArrowBigRight, Check, Plus, X } from "lucide-react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select";
-import { parameters, relations } from "@/lib/analyzer";
-import { useProbabilityStore } from "@/store/probability-store";
+  ResponseData,
+  useProbabilityStore,
+} from "@/store/mr-probability-store";
 import { cn } from "@/lib/utils";
+import { relationType } from "@/lib/prediction";
+import EventsSelector from "./EventsSelector";
 
-interface Props {}
+interface Props {
+  response?: ResponseData;
+  relations: relationType[];
+  currentRelation: string | number;
+  setCurrentRelation: (relation: string | number) => any;
+}
 
-const schema = z.object({
-  parameter: z.string(),
-  relation_to: z.string().optional(),
-});
+const PlotControls: FC<Props> = ({
+  relations,
+  currentRelation,
+  setCurrentRelation,
+  response,
+}) => {
+  const events = useMemo(() => {
+    return response?.lmn_tests.data.map((date_str) =>
+      new Date(date_str).toLocaleString()
+    );
+  }, [response]);
 
-type schemaType = z.infer<typeof schema>;
-
-const PlotControls: FC<Props> = () => {
-  const currentRelation = useProbabilityStore(
-    (state) => state.current_relation
-  );
-  const setCurrentRelation = useProbabilityStore(
-    (state) => state.setCurrentRelation
-  );
   return (
-    <div className="min-w-[350px]">
+    <div className="min-w-[350px] overflow-y-auto">
       <h4 className="text-xl">Plot Relationships</h4>
       <div className="mt-8 flex flex-col gap-4">
         {relations.map((relation, index) => (
           <div
+            key={relation.value}
             className={cn(
               relation.value == currentRelation ? "bg-accent" : "bg-muted",
               typeof relation.name === "string"
@@ -66,6 +61,16 @@ const PlotControls: FC<Props> = () => {
             )}
           </div>
         ))}
+        {events && events.length > 0 ? (
+          <EventsSelector
+            events={events}
+            selected={currentRelation}
+            name="Correlation Bl -> Vl Approved events"
+            select={(str) => {
+              setCurrentRelation(str);
+            }}
+          />
+        ) : null}
       </div>
     </div>
   );

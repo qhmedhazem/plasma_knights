@@ -8,9 +8,6 @@ import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar/Navbar";
 import dynamic from "next/dynamic";
-const PopupOverlay = dynamic(() => import("@/components/Popup/PopupOverlay"), {
-  ssr: false,
-});
 
 const rubik = Inter({ subsets: ["latin"] });
 
@@ -54,7 +51,6 @@ export default function RootLayout({
                 <div className="py-8 px-16">{children}</div>
               </div>
             </div>
-            <PopupOverlay />
           </DataDeliveryWrapper>
           {/* </SocketProvider> */}
         </ThemeProvider>

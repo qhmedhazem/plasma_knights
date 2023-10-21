@@ -1,10 +1,10 @@
 import datetime
 import pandas as pd
 
-from data.cdas_datasets.wind import wind
+# from data.cdas_datasets.wind import wind
 
 # from data.omni_data_importer import DataImporter as SpecificDataImporter, OmniProbes
-from data.asc_data_importer import DataImporter
+from data.omni_data_importer import DataImporter
 
 
 def import_data(

@@ -19,6 +19,10 @@
 /build
 /dist
 
+# binary builder
+/binary
+/binary_cache
+
 # cache files
 /cache
 */cache

@@ -1,38 +1,59 @@
+export const eventRelation = {
+  value: "event",
+  name: "LMN Event",
+  parameters: [["Bl", "v_l"]],
+};
+
 export const relations = [
   {
+    value: "mr_events_sum",
+    name: "MR Events Histogram",
+    parameters: ["possible_events_sum", "lmn_approved_events_sum"],
+  },
+  {
     value: "imf",
-    name: ["IMF Comp", "MR Probability"],
-    parameters: ["Bx", "By", "Bz", "Bt"],
+    name: ["IMF Components", "MR Probability"],
+    parameters: [
+      ["Bx", "vp_x"],
+      ["By", "vp_y"],
+      ["Bz", "vp_z"],
+      ["Bt", "vp_magnitude"],
+    ],
   },
   {
     value: "bz",
-    name: ["Bz", "MR Probability"],
+    name: ["Bz (GSE)", "MR Probability"],
     parameters: ["Bz"],
   },
   {
     value: "bt",
-    name: ["Bt", "MR Probability"],
+    name: ["Bt (GSE)", "MR Probability"],
     parameters: ["Bt"],
   },
-  {
-    value: "possible_events_sum",
-    name: "Possible Events Histogram",
-    parameters: ["possible_events_sum"],
-  },
-  {
-    value: "vp_x",
-    name: "Proton Vx",
-    parameters: ["vp_x"],
-  },
+  // {
+  //   value: "vp_x",
+  //   name: "Proton Vx (GSE)",
+  //   parameters: ["vp_x"],
+  // },
   {
     value: "vp_z",
-    name: "Proton Vz",
+    name: ["Proton Vz (GSE)", "MR Probability"],
     parameters: ["vp_z"],
   },
   {
     value: "vp_t",
-    name: "Proton Vt",
+    name: ["Proton Vt (GSE)", "MR Probability"],
     parameters: ["vp_magnitude"],
+  },
+  {
+    value: "alfven_mach_number",
+    name: ["Alfven Mach Number", "LMN Approved Events"],
+    parameters: ["alfven_mach_number"],
+  },
+  {
+    value: "fspeed_pdensity",
+    name: ["Flow Speed", "Proton Density"],
+    parameters: [["flow_speed", "n_p"]],
   },
 ];
 

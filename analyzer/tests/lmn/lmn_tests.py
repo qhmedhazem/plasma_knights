@@ -29,7 +29,7 @@ def lmn_testing(data: pd.DataFrame, event_date: datetime) -> bool:
     mva_interval, outside_interval, inside_interval, min_len = 30, 10, 2, 70
 
     if len(data) < min_len:
-        return False
+        return dict({"status": False})
 
     L, M, N = hybrid_mva(
         data,
@@ -44,6 +44,7 @@ def lmn_testing(data: pd.DataFrame, event_date: datetime) -> bool:
         outside_interval=outside_interval,
         inside_interval=inside_interval,
     )
+
     # print(
     #     "LMN:",
     #     L,
@@ -78,13 +79,21 @@ def lmn_testing(data: pd.DataFrame, event_date: datetime) -> bool:
     rho_1, rho_2 = np.mean(data_1["n_p"].values), np.mean(data_2["n_p"].values)
 
     if not b_largest_in_l_direction(b1_L, b2_L, b1_M, b2_M):
-        return False
+        return dict({"status": False})
     if not multiple_tests(b1, b2, v1, v2, data, event_date, L):
-        return False
+        return dict({"status": False})
     if not walen_test(
         b1_L, b2_L, v1_L, v2_L, rho_1, rho_2, minimum_walen, maximum_walen
     ):
-        return False
-    return True
+        return dict({"status": False})
+
+    return dict(
+        {
+            "status": True,
+            "data": data[
+                event_date - timedelta(minutes=25) : event_date + timedelta(minutes=25)
+            ][["Bl", "v_l", "Bn", "v_n", "Bm", "v_m"]],
+        }
+    )
     # except ValueError:
     #     print(f'value error for event {event_date}')

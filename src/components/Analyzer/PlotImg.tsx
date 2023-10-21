@@ -1,42 +1,52 @@
 "use client";
-import useIpc from "@/hooks/use-ipc";
-import { useProbabilityStore } from "@/store/probability-store";
-import React, { useEffect } from "react";
+import React, { FC, useEffect } from "react";
 import { Skeleton } from "../ui/Skeleton";
-import { relations } from "@/lib/analyzer";
-import { Button } from "../ui/Button";
-import { Loader2, SplineIcon } from "lucide-react";
+import { eventRelation } from "@/lib/analyzer";
+import { Loader2 } from "lucide-react";
+import { Status } from "@/store/mr-probability-store";
+import { relationType } from "@/lib/prediction";
 
-interface Props {}
+interface Props {
+  status: Status;
+  plotImage: string;
+  currentRelation: string | number;
+  relations: relationType[];
+  setCurrentRelation: (relation: string) => any;
+  requestPlotImg: (
+    relation: string[] | string[][] | undefined
+  ) => Promise<string | undefined>;
+  requestLmnPlotImg?: (data: any) => any;
+  showPlot: () => any;
+}
 
-const PlotImg = () => {
-  const { requestPlotImg, showPlot } = useIpc();
-  const plotImage = useProbabilityStore((state) => state.plot_img);
-  const currentRelation = useProbabilityStore(
-    (state) => state.current_relation
-  );
-  const response = useProbabilityStore((state) => state.response);
-  const setPlotImg = useProbabilityStore((state) => state.setPlotImg);
-
+const PlotImg: FC<Props> = ({
+  plotImage,
+  currentRelation,
+  status,
+  setCurrentRelation,
+  requestLmnPlotImg,
+  requestPlotImg,
+  showPlot,
+  relations,
+}) => {
   useEffect(() => {
     const relation = relations.find((r) => r.value === currentRelation);
-    if (requestPlotImg && relation) {
-      setPlotImg("");
-      requestPlotImg(relation.parameters)
-        .then((data: string) => {
-          if (data) {
-            setPlotImg(data);
-          }
-        })
-        .catch((err: any) => console.log(err));
+    if (relation) {
+      console.log("request", relation);
+      requestPlotImg(relation ? relation?.parameters : undefined);
+    } else if (requestLmnPlotImg) {
+      requestLmnPlotImg({
+        index: currentRelation,
+        columns: eventRelation.parameters,
+      });
     }
-  }, [currentRelation, response, requestPlotImg, setPlotImg]);
+  }, [requestLmnPlotImg, requestPlotImg, currentRelation, status, relations]);
 
   return plotImage ? (
     <div className="flex flex-col gap-4 justify-center">
       <div
         className="flex self-start justify-center items-center w-full bg-muted rounded-lg overflow-hidden cursor-pointer transition-all duration-300 hover:opacity-90"
-        onClick={() => showPlot?.()}
+        onClick={() => showPlot()}
       >
         <div className="h-full w-full">
           <img className="w-full" src={"data:image/jpeg;base64," + plotImage} />

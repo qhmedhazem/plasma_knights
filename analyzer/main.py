@@ -99,9 +99,11 @@ def get_events(start_date: str, end_date: str, duration: int):
             continue
         # data = data[0]
         # data = data[before_2_hours_of_event:after_2_hours_of_event]
-
-        if lmn_testing(data, event):
-            lmn_approved_events.append(event)
+        lmn_test_result = lmn_testing(data, event)
+        if lmn_test_result is not None and lmn_test_result["status"] == True:
+            lmn_approved_events.append(
+                dict({"event": event, "data": lmn_test_result["data"]})
+            )
 
     merged_data: pd.DataFrame = pd.concat(imported_data, ignore_index=False)
 
@@ -119,7 +121,7 @@ def get_events(start_date: str, end_date: str, duration: int):
             "count": len(lmn_approved_events),
             "data": list(
                 map(
-                    lambda x: x.isoformat(),
+                    lambda x: x["event"].isoformat(),
                     lmn_approved_events,
                 )
             ),
@@ -134,7 +136,7 @@ def get_events(start_date: str, end_date: str, duration: int):
         merged_data.loc[index, "possible_events"] = 1
 
     for i in range(len(lmn_approved_events)):
-        index = lmn_approved_events[i]
+        index = lmn_approved_events[i]["event"]
         merged_data.loc[index, "lmn_approved_events"] = 1
 
     # L, M, N = hybrid_mva(
@@ -209,6 +211,7 @@ def get_events(start_date: str, end_date: str, duration: int):
             "possible_events_per_duration": possible_events_per_duration,
             "start_date": times[0][0],
             "end_date": times[len(times) - 1][1],
+            "lmn_approved_events": lmn_approved_events,
             # "paramaters": paramaters_result,
             "results": tests_result,
         }
@@ -247,12 +250,19 @@ if __name__ == "__main__":
     if "possible_events_sum" in columns_to_plot:
         data = saved_data["possible_events_per_duration"]
 
+    title = f""
+    imported_data = data
+    start_date = saved_data["start_date"]
+    end_date = saved_data["end_date"]
+    columns_to_plot = columns_to_plot
+    event_date = None
+
     (img, show_plot, close_plot) = plot_imported_data(
-        imported_data=data,
-        start_date=saved_data["start_date"],
-        end_date=saved_data["end_date"],
-        # probe=probe,
+        imported_data=imported_data,
+        start_date=start_date,
+        end_date=end_date,
     )
+    log(json.dumps({"event": "plot_img_approved", "data": {"img": img}}))
 
     while True:
         i = input()
@@ -274,26 +284,63 @@ if __name__ == "__main__":
                 if "possible_events_sum" in columns_to_plot:
                     data = saved_data["possible_events_per_duration"]
 
+                title = ""
+                imported_data = data
+                start_date = saved_data["start_date"]
+                end_date = saved_data["end_date"]
+                columns_to_plot = columns_to_plot
+                event_date = None
+
                 (img, show_plot, close_plot) = plot_imported_data(
-                    imported_data=data,
-                    start_date=saved_data["start_date"],
-                    end_date=saved_data["end_date"],
-                    # probe=probe,
+                    title=title,
+                    imported_data=imported_data,
+                    start_date=start_date,
+                    end_date=end_date,
                     columns_to_plot=columns_to_plot,
+                    event_date=event_date,
                 )
-
                 log(json.dumps({"event": "plot_img_approved", "data": {"img": img}}))
+            if cmd == "get_lmn_plot_data":
+                # print(saved_data["lmn_tests_data"])
+                query = cmd_payload.get("data")
+                columns = query["columns"]
+                index = query["index"]
+                event_date: datetime = saved_data["lmn_approved_events"][index]["event"]
+                data_to_plot = saved_data["lmn_approved_events"][index]["data"]
 
+                title = f"Approved Event: {event_date.strftime('%d/%m/%Y %I:%M:%S %p')}"
+                imported_data = data_to_plot
+                start_date = data_to_plot.index[0]
+                end_date = data_to_plot.index[-1]
+                columns_to_plot = columns
+                event_date = event_date
+
+                (img, show_plot, close_plot) = plot_imported_data(
+                    title=title,
+                    imported_data=imported_data,
+                    start_date=start_date,
+                    end_date=end_date,
+                    columns_to_plot=columns_to_plot,
+                    event_date=event_date,
+                )
+                log(json.dumps({"event": "plot_img_approved", "data": {"img": img}}))
+            if cmd == "show_plot":
+                try:
+                    show_plot()
+                except Exception as e:
+                    log(json.dumps({"event": "error", "data": "No plot to show"}))
             if cmd == "plot":
                 data = saved_data["imported_data"]
                 if "possible_events_sum" in columns_to_plot:
                     data = saved_data["possible_events_per_duration"]
+
                 (img, show_plot, close_plot) = plot_imported_data(
-                    imported_data=data,
-                    start_date=saved_data["start_date"],
-                    end_date=saved_data["end_date"],
+                    title=title,
+                    imported_data=imported_data,
+                    start_date=start_date,
+                    end_date=end_date,
                     columns_to_plot=columns_to_plot,
-                    # probe=probe,
+                    event_date=event_date,
                 )
                 show_plot()
                 log(json.dumps({"event": "plot_approved"}))
@@ -301,6 +348,7 @@ if __name__ == "__main__":
                 break
             else:
                 log(json.dumps({"event": "error", "data": "Unknown command"}))
+
         except Exception as e:
             print(e)
             log(json.dumps({"event": "error", "data": "Something went wrong"}))

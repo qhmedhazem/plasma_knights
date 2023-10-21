@@ -6,31 +6,30 @@
   "description": "App analyze the magnetic reconnection event in specific time",
   "build": {
     "appId": "nasaspaceapps.plasma_knights",
+    "files": [
+      "out/**/*",
+      "main.js",
+      "preload.js",
+      "analyzer_communication.js",
+      "prediction_communication.js"
+    ],
     "win": {
-      "icon": "src/favicon.ico",
+      "icon": "out/favicon.ico",
       "target": [
         "portable"
       ]
     },
-    "extraResources": [
+    "extraFiles": [
       {
-        "from": "./src/",
-        "to": "icons",
-        "filter": [
-          "src/favicon.ico",
-          "src/icon.png"
-        ]
-      },
-      {
-        "from": "./out/",
-        "to": "out",
+        "from": "./binary/mr_analyzer",
+        "to": "mr_analyzer",
         "filter": [
           "**/*"
         ]
       },
       {
-        "from": "./analyzer/",
-        "to": "analyzer",
+        "from": "./binary/predictior",
+        "to": "predictior",
         "filter": [
           "**/*"
         ]
@@ -42,15 +41,19 @@
     "dev:next": "next dev",
     "dev:electron": "SET NODE_ENV=development && nodemon --ignore src --ignore .next --exec electron .",
     "dev": "concurrently \"npm run dev:next\" \"npm run dev:electron\"",
+    "build:binary": "./binary_build.bat",
+    "build:electron": "electron-builder",
     "build:next": "next build",
-    "build": "npm run build:next && npm run dist",
+    "build": "npm run build:binary && npm run build:next && npm run build:electron",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "pack": "electron-builder --dir"
   },
   "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
     "@hookform/resolvers": "^3.3.1",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
@@ -68,7 +71,6 @@
     "bufferutil": "^4.0.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-    "dotenv": "^16.3.1",
     "eslint": "8.50.0",
     "eslint-config-next": "^13.4.19",
     "framer-motion": "^10.16.4",
@@ -87,9 +89,7 @@
     "typescript": "5.2.2",
     "utf-8-validate": "^5.0.10",
     "zod": "^3.22.4",
-    "zustand": "^4.4.2"
-  },
-  "devDependencies": {
+    "zustand": "^4.4.2",
     "@electron-forge/cli": "^6.4.2",
     "@electron-forge/maker-deb": "^6.4.2",
     "@electron-forge/maker-rpm": "^6.4.2",
@@ -97,7 +97,6 @@
     "@electron-forge/maker-zip": "^6.4.2",
     "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
     "@types/body-parser": "^1.19.3",
-    "dotenv": "^16.3.1",
     "electron": "^26.3.0",
     "electron-builder": "^24.6.4",
     "electron-squirrel-startup": "^1.0.0",

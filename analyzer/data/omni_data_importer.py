@@ -8,47 +8,103 @@ import numpy as np
 import json
 from utils.log import log
 
-base_url = "https://spdf.gsfc.nasa.gov/pub/data/omni/high_res_omni/sc_specific/"
+base_url = "https://spdf.gsfc.nasa.gov/pub/data/omni/high_res_omni/"
 int_parameters = ["year", "day", "hour", "minute"]
+
+# parameters = [
+#     "year",
+#     "day",
+#     "hour",
+#     "minute",
+#     "sc_id",
+#     "sw_plasma_sc_id",
+#     "interp_precent",
+#     "timeshift",
+#     "rms_timeshift",
+#     "rms_phase_front_normal",
+#     "time_btwn_observations",
+#     "Bt",
+#     "Bx_gse_gsm",
+#     "By_gse",
+#     "Bz_gse",
+#     "By_gsm",
+#     "Bz_gsm",
+#     "rms_sd_b_scalar",
+#     "rms_sd_field_vector",
+#     "flow_speed",
+#     "Vx_gse",
+#     "Vy_gse",
+#     "Vz_gse",
+#     "proton_density",
+#     "temperature",
+#     "flow_pressure",
+#     "electric_field",
+#     "plasma_beta",
+#     "alfven_mach_number",
+#     "x_gse_re",
+#     "y_gse_re",
+#     "z_gse_re",
+#     "bsn_location_x_gse_re",
+#     "bsn_location_y_gse_re",
+#     "bsn_location_z_gse_re",
+#     "ae_index",
+#     "al_index",
+#     "au_index",
+#     "sym_d_index",
+#     "sym_h_index",
+#     "asy_d_index",
+#     "asy_h_index",
+#     "pc_n_index",
+#     "magnetosonic_mach_number",
+# ]
 
 parameters = [
     "year",
     "day",
     "hour",
     "minute",
-    "num_points_imf_avg",
+    "imf_spacecraft_id",
+    "sw_plasma_spacecraft_id",
+    "averages_points_in_imf",  # of points in IMF averages
+    "averages_points_in_plasma",  # of points in Plasma averages
     "percent_interp",
-    "cp_mv_flag",
-    "time_shift_sec",
-    "phase_front_normal_x_gse",
-    "phase_front_normal_y_gse",
-    "phase_front_normal_z_gse",
-    "scalar_b_nt",
+    "timeshift_sec",
+    "rms_timeshift_sec",
+    "rms_phase_front_normal",
+    "time_btwn_observations_sec",
+    "field_magnitude_avg_nt",
     "bx_nt_gse_gsm",
     "by_nt_gse",
     "bz_nt_gse",
     "by_nt_gsm",
     "bz_nt_gsm",
-    "rms_timeshift_sec",
-    "rms_phase_front_normal",
-    "rms_scalar_b_nt",
-    "rms_field_vector_nt",
-    "num_points_plasma_avg",
+    "rms_sd_b_scalar_nt",
+    "rms_sd_field_vector_nt",
     "flow_speed_km_s",
     "vx_velocity_km_s_gse",
     "vy_velocity_km_s_gse",
     "vz_velocity_km_s_gse",
     "proton_density_n_cc",
     "temperature_k",
+    "flow_pressure_npa",
+    "electric_field_mv_m",
+    "plasma_beta",
+    "alfven_mach_number",
     "x_sc_gse_re",
     "y_sc_gse_re",
     "z_sc_gse_re",
-    "x_target_gse_re",
-    "y_target_gse_re",
-    "z_target_gse_re",
-    "rms_target_re",
-    "dbot1_sec",
-    "dbot2_sec",
+    "bsn_location_x_gse_re",
+    "bsn_location_y_gse_re",
+    "bsn_location_z_gse_re",
+    "ae_index_nt",
+    "al_index_nt",
+    "au_index_nt",
+    "sym_d_index_nt",
+    "sym_h_index_nt",
+    "asy_d_index_nt",
+    "asy_h_index_nt",
+    "pc_n_index",
+    "magnetosonic_mach_number",
 ]
 
 invaild_values = [
@@ -62,21 +118,7 @@ invaild_values = [
     "9999999.",
 ]
 
-data_ranges = {
-    "ACE": (1998, 2021),
-    "WIND": (1995, None),
-    "DSCOVR": (2016, 2019),
-    "GEOTAIL": (1995, 2006),
-    "IMP8": (1973, 2000),
-}
-
-
-class OmniProbes(Enum):
-    WIND = "WIND"
-    ACE = "ACE"
-    DSCOVR = "DSCOVR"
-    GEOTAIL = "GEOTAIL"
-    IMP8 = "IMP8"
+data_ranges = (1981, None)
 
 
 class DataImporter:
@@ -84,7 +126,6 @@ class DataImporter:
         self,
         start_date: datetime.datetime,
         end_date: datetime.datetime,
-        probe: OmniProbes,
         duration: int = 4,
         log_progress_state: bool = False,
     ):
@@ -96,27 +137,15 @@ class DataImporter:
         self.end_year = self.importing_end_date.year
         self.cache = None
         self.duration = duration
-        self.probe = probe or OmniProbes.WIND
         self.log_progress_state = log_progress_state
 
-    def parse_omni_url(self, probe: OmniProbes, year: int):
-        if probe == "ACE":
-            return base_url + f"ace_min_b{year}.txt"
-        elif probe == "WIND":
-            return base_url + f"wind_min_b{year}.txt"
-        elif probe == "DSCOVR":
-            return base_url + f"dscovr_min_b{year}.txt"
-        elif probe == "GEOTAIL":
-            return base_url + f"geotail_min_b{year}.txt"
-        elif probe == "IMP8":
-            return base_url + f"imp8_min_b{year}.txt"
-        else:
-            return None
+    def parse_omni_url(self, year: int):
+        return base_url + f"omni_min{year}.asc"
 
     def download_data(
         self,
     ):
-        max_year, min_year = data_ranges[self.probe]
+        max_year, min_year = data_ranges
 
         if self.log_progress_state:
             log(
@@ -127,29 +156,30 @@ class DataImporter:
                             "years": list(range(self.start_year, self.end_year + 1)),
                             "start_year": self.start_year,
                             "end_year": self.end_year,
-                            "probe": self.probe,
                         },
                     }
                 )
             )
+        isDirExists = os.path.exists(f"./cache/")
+        if not isDirExists:
+            os.mkdir(f"./cache/")
 
         for year in range(self.start_year, self.end_year + 1):
-            isExists = os.path.exists(f"./data/cache/{self.probe}_{year}.txt")
+            isExists = os.path.exists(f"./cache/omni_{year}.asc")
+
             if isExists:
-                # print(f"File {probe}_{year}.txt already exists")
+                # print(f"File {probe}_{year}.asc already exists")
                 continue
 
-            url = self.parse_omni_url(self.probe, year)
-            print(f"Downloading {self.probe} data for {year} ({url})")
+            url = self.parse_omni_url(year)
+            # print(f"Downloading omni data for {year} ({url})")
 
             stream_request = requests.get(url=url, stream=True)
-            with open(f"./data/cache/{self.probe}_{year}.txt", "wb") as fd:
+            with open(f"./cache/omni_{year}.asc", "wb") as fd:
                 for chunk in stream_request.iter_content(chunk_size=128):
                     fd.write(chunk)
 
-            print(
-                f"Saved {self.probe} data for {year} in ./data/cache/{self.probe}_{year}.txt"
-            )
+            # print(f"Saved omni data for {year} in ./cache/omni_{year}.asc")
 
         return True
 
@@ -164,6 +194,8 @@ class DataImporter:
         cur = open(pathname, "r")
         for line in cur:
             line = line.split()
+            # print(len(line), len(parameters))
+
             year = int(line[0])
             day = int(line[1])
             hour = int(line[2])
@@ -193,14 +225,14 @@ class DataImporter:
                     {
                         "event": "import_data_complete",
                         "data": {
-                            "probe": self.probe,
+                            # "probe": self.probe,
                         },
                     }
                 )
             )
 
         files = [
-            f"./data/cache/{self.probe}_{year}.txt"
+            f"./cache/omni_{year}.asc"
             for year in range(self.start_year, self.end_year + 1)
         ]
 
@@ -212,6 +244,8 @@ class DataImporter:
             for index, data in self.get_data_from_file(
                 file, self.importing_start_date, self.importing_end_date
             ):
+                if data is None:
+                    continue
                 final_data.loc[index, "vp_x"] = data["vx_velocity_km_s_gse"]
                 final_data.loc[index, "vp_y"] = data["vy_velocity_km_s_gse"]
                 final_data.loc[index, "vp_z"] = data["vz_velocity_km_s_gse"]
@@ -230,6 +264,12 @@ class DataImporter:
                 final_data.loc[index, "By"] = data["by_nt_gse"]
                 final_data.loc[index, "Bz"] = data["bz_nt_gse"]
 
+                final_data.loc[index, "By_gsm"] = data["by_nt_gsm"]
+                final_data.loc[index, "Bz_gsm"] = data["bz_nt_gsm"]
+                final_data.loc[index, "flow_pressure"] = data["flow_pressure_npa"]
+                final_data.loc[index, "alfven_mach_number"] = data["alfven_mach_number"]
+                final_data.loc[index, "flow_speed"] = data["flow_speed_km_s"]
+                final_data.loc[index, "alfven_mach_number"] = data["alfven_mach_number"]
         self.cache = final_data
 
         return final_data[self.start_date : self.end_date]

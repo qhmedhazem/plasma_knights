@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Moon, Sun } from "lucide-react";
+import { Check, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/Button";
@@ -11,9 +11,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
+import { cn } from "@/lib/utils";
 
 export default function NavbarThemeSwitch() {
-  const { setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme, theme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -34,21 +35,33 @@ export default function NavbarThemeSwitch() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          className="cursor-pointer"
+          className={cn(
+            "cursor-pointer flex items-center",
+            theme === "light" ? "bg-muted" : ""
+          )}
           onClick={() => setTheme("light")}
         >
+          {theme == "light" && <Check className="w-4 h-4 mr-2" />}
           Light
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="cursor-pointer"
+          className={cn(
+            "cursor-pointer flex items-center",
+            theme === "dark" ? "bg-muted" : ""
+          )}
           onClick={() => setTheme("dark")}
         >
+          {theme == "dark" && <Check className="w-4 h-4 mr-2" />}
           Dark
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="cursor-pointer"
+          className={cn(
+            "cursor-pointer flex items-center",
+            theme === "system" ? "bg-muted" : ""
+          )}
           onClick={() => setTheme("system")}
         >
+          {theme == "system" && <Check className="w-4 h-4 mr-2" />}
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

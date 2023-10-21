@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useProbabilityStore } from "@/store/probability-store";
+import { useProbabilityStore } from "@/store/mr-probability-store";
 const InputPage = dynamic(() => import("./input_page"), { ssr: false });
 const DataPage = dynamic(() => import("./data_page"), { ssr: false });
 

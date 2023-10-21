@@ -23,23 +23,51 @@ class Analyzer extends events.EventEmitter {
   destroy() {
     if (this.process) {
       // this.process.kill();
-      this.process.stdin.write('{"cmd":"exit"}\n');
+      this.process.stdin.write('{"cmd":"exit"}' + "\n");
     }
   }
 
   plot() {
     // return console.log("NOT AVILABLE ON SERVER SIDE ANALYZER");
     if (this.process) {
-      this.process.stdin.write('{"cmd":"plot"}\n');
+      this.process.stdin.write('{"cmd":"plot"}' + "\n");
     }
+  }
+  showPlot() {
+    if (this.process) {
+      this.process.stdin.write('{"cmd":"plot"}' + "\n");
+    }
+  }
+
+  requestLmnPlotImg({ index, columns }) {
+    if (this.process) {
+      this.process.stdin.write(
+        JSON.stringify({
+          cmd: "get_lmn_plot_data",
+          data: { index, columns },
+        }) + "\n"
+      );
+    }
+
+    return new Promise((resolve, reject) => {
+      const handler = (packet) => {
+        if (packet?.data?.event === "plot_img_approved" && packet.data?.data) {
+          console.log(packet?.data?.event);
+          this.removeListener("packet", handler);
+          return resolve(packet.data?.data?.img);
+        }
+      };
+
+      this.on("packet", handler);
+      setTimeout(() => {
+        this.removeListener("packet", handler);
+        return reject("Timeout");
+      }, 10000);
+    });
   }
 
   async requestPlotImg(data) {
     if (this.process) {
-      console.log({
-        cmd: "request_plot_img",
-        data: data,
-      });
       this.process.stdin.write(
         JSON.stringify({
           cmd: "request_plot_img",
@@ -67,7 +95,7 @@ class Analyzer extends events.EventEmitter {
 
   requestParamaters() {
     if (this.process) {
-      this.process.stdin.write('{"cmd":"paramaters"}\n');
+      this.process.stdin.write('{"cmd":"paramaters"}' + "\n");
     }
   }
 
@@ -92,10 +120,11 @@ class Analyzer extends events.EventEmitter {
       args.push(probe);
     }
 
-    this.process = child_process.spawn("py", [
-      isProd ? "./resources/analyzer/main.py" : "./analyzer/main.py",
-      ...args,
-    ]);
+    if (isProd) {
+      this.process = child_process.spawn("./mr_analyzer/mr_analyzer.exe", args);
+    } else {
+      this.process = child_process.spawn("py", ["./analyzer/main.py", ...args]);
+    }
 
     this.process.on("spawn", () => {
       this.emit("packet", {
@@ -149,7 +178,11 @@ class Analyzer extends events.EventEmitter {
         } catch {
           continue;
         }
-        console.log("event: ", packet?.event, !!packet);
+        console.log(
+          "event: ",
+          packet?.event,
+          packet?.event === "error" ? packet?.data : ""
+        );
 
         if (packet?.data?.event === "finished") {
           this._last_sent_event = packet;
