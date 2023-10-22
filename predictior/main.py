@@ -22,6 +22,51 @@ durations = [
     {"name": "All", "duration": timedelta(days=365 * 30)},
 ]
 
+mag_columns = set(
+    [
+        "bt_min",
+        "bt_max",
+        "bt",
+        "bx_gsm",
+        "by_gsm",
+        "bz_gsm",
+        "bx_gsm_min",
+        "bx_gsm_max",
+        "by_gsm_min",
+        "by_gsm_max",
+        "bz_gsm_min",
+        "bz_gsm_max",
+        "lat_gsm_min",
+        "lat_gsm_max",
+        "lat_gsm",
+        "lon_gsm",
+        "lon_gsm_min",
+        "lon_gsm_max",
+        "quality",
+        "source",
+        "active",
+    ]
+)
+
+kp_columns = set(["kp", "ap", "ap_daily", "source"])
+
+plasma_columns = set(
+    [
+        "speed_min",
+        "speed_max",
+        "speed",
+        "density_min",
+        "density_max",
+        "density",
+        "temperature_min",
+        "temperature_max",
+        "temperature",
+        "quality",
+        "source",
+        "active",
+    ]
+)
+
 
 class DurationEnum(Enum):
     hours2 = "2 hours"
@@ -75,6 +120,8 @@ def convert_to_df(data: any) -> pd.DataFrame:
     index = map(lambda x: datetime.fromisoformat(x[0]), data[1:])
     d = list(map(lambda x: x[1:], data[1:]))
     df = pd.DataFrame(data=d, columns=data[0][1:], index=index)
+    for column in df.columns:
+        df[column] = pd.to_numeric(df[column], errors="coerce")
     return df
 
 
@@ -119,9 +166,19 @@ def main(duration: DurationEnum):
     # print(mag_df)
 
 
-def parameter_to_request(param: str, data: dict[pd.DataFrame]):
-    if param == "kp":
-        return data["kp_df"]
+def parameter_to_request(params: list[str | list[str]], data: dict[pd.DataFrame]):
+    results = []
+    for i in range(len(params)):
+        param = params[i]
+        if isinstance(param, str):
+            param = [params[i]]
+        if set(param).issubset(mag_columns):
+            results.append(dict({"data": data["mag_df"], "columns_to_plot": param}))
+        elif set(param).issubset(plasma_columns):
+            results.append(dict({"data": data["plasma_df"], "columns_to_plot": param}))
+        elif set(param).issubset(kp_columns):
+            results.append(dict({"data": data["kp_df"], "columns_to_plot": param}))
+    return results
 
 
 parser = argparse.ArgumentParser()
@@ -141,7 +198,7 @@ if __name__ == "__main__":
     # plot_request = parameters_to_request(columns_to_plot, data)
 
     (img, show_plot, close_plot) = plot_imported_data(
-        data=parameter_to_request(param=columns_to_plot[0], data=data),
+        data=parameter_to_request(columns_to_plot, data),
         duration=data["duration_timedelta"],
     )
     log(json.dumps({"event": "plot_img_approved", "data": {"img": img}}))
@@ -153,17 +210,17 @@ if __name__ == "__main__":
             cmd = cmd_payload.get("cmd")
             if cmd == "eval":
                 exec(cmd_payload.get("data"))
-            if cmd == "request_plot_img":
+            elif cmd == "request_plot_img":
                 columns_to_plot = cmd_payload.get("data") or DEFAULT_PLOTTED_COLUMNS
                 # plot_request = parameters_to_request(columns_to_plot, data)
                 (img, show_plot, close_plot) = plot_imported_data(
-                    data=parameter_to_request(param=columns_to_plot[0], data=data),
+                    data=parameter_to_request(columns_to_plot, data),
                     duration=data["duration_timedelta"],
                 )
                 log(json.dumps({"event": "plot_img_approved", "data": {"img": img}}))
-            if cmd == "plot":
+            elif cmd == "plot":
                 (img, show_plot, close_plot) = plot_imported_data(
-                    data=parameter_to_request(param=columns_to_plot[0], data=data),
+                    data=parameter_to_request(columns_to_plot, data),
                     duration=data["duration_timedelta"],
                 )
                 show_plot()

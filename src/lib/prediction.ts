@@ -21,7 +21,27 @@ export const relations = [
   {
     value: "Kp",
     name: "Kp",
-    parameters: ["Kp"],
+    parameters: ["kp"],
+  },
+  {
+    value: "imf_gsm",
+    name: "IMF Components (GSM) (nT)",
+    parameters: ["bt", "bx_gsm", "by_gsm", "bz_gsm"],
+  },
+  {
+    value: "density",
+    name: "Density (1/cm^3)",
+    parameters: ["density"],
+  },
+  {
+    value: "speed",
+    name: "Speed (km/s)",
+    parameters: ["speed"],
+  },
+  {
+    value: "temp",
+    name: "Temperature (K)",
+    parameters: ["temperature"],
   },
 ];
 

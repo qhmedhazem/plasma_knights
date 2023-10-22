@@ -46,21 +46,31 @@ export default function Page() {
     <div className="flex flex-col min-h-screen text-lg">
       <div className="relative w-full min-h-[420px] rounded-lg overflow-hidden bg-black">
         <div className="w-full h-full">
-          <Image
+          {/* <Image
             src={ArticleImg}
             alt="magnetosphere"
             className="h-full object-cover absolute right-0 z-10"
+          /> */}
+          <video
+            src="/magnetic_reconnection_2.mp4"
+            loop
+            autoPlay
+            muted
+            className="w-full h-full object-cover absolute z-10"
           />
         </div>
 
-        <h1
-          className="text-5xl font-bold text-white absolute bottom-0 py-12 px-12 w-full z-20"
+        <div
+          className="flex flex-col gap-2 text-5xl font-bold text-white absolute bottom-0 py-12 px-12 w-full z-20"
           style={{
             backgroundImage: "linear-gradient(transparent, rgba(0,0,0,0.9))",
           }}
         >
-          Magnetic Reconnection (MR)
-        </h1>
+          <h1 className="">Magnetic Reconnection</h1>
+          <p className="text-xs text-gray-400 font-bold uppercase">
+            Media Content: How Magnetic Reconnection Happens
+          </p>
+        </div>
       </div>
       <section className="mt-8">
         <p>

@@ -6,21 +6,31 @@ export default function Home() {
     <main className="flex flex-col gap-8 text-lg">
       <div className="relative w-full min-h-[420px] rounded-lg overflow-hidden bg-black">
         <div className="w-full h-full">
-          <Image
+          {/* <Image
             src={ArticleImg}
             alt="magnetosphere"
             className="h-full object-cover absolute z-10"
+          /> */}
+          <video
+            src="/magnetic_reconnection.webm"
+            loop
+            autoPlay
+            muted
+            className="w-full h-full object-cover absolute z-10"
           />
         </div>
 
-        <h1
-          className="text-5xl font-bold text-white absolute bottom-0 py-12 px-12 w-full z-20"
+        <div
+          className="flex flex-col gap-2 text-5xl font-bold text-white absolute bottom-0 py-12 px-12 w-full z-20"
           style={{
             backgroundImage: "linear-gradient(transparent, rgba(0,0,0,0.9))",
           }}
         >
-          Overview
-        </h1>
+          <h1 className="">Overview</h1>
+          <p className="text-xs text-gray-400 font-bold uppercase">
+            Media Content: How Magnetic Reconnection Happens
+          </p>
+        </div>
       </div>
       <div className="flex flex-col gap-8">
         <section className="flex flex-col gap-4">
