@@ -2,20 +2,7 @@ import { StaticImageData } from "next/image";
 import React, { FC } from "react";
 import Image from "next/image";
 
-interface Link {
-  name: string;
-  url: string;
-}
-
-interface Props {
-  username?: string;
-  full_name: string;
-  image_url: StaticImageData | string;
-  bio: string;
-  links?: Link[];
-}
-
-const MemberCard: FC<Props> = ({
+const MemberCard: FC<TeamMember> = ({
   username,
   full_name,
   image_url,

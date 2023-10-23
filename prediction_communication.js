@@ -39,6 +39,61 @@ class Predictior extends events.EventEmitter {
     }
   }
 
+  async getScalesData() {
+    if (this.process) {
+      this.process.stdin.write(
+        JSON.stringify({
+          cmd: "get_scales_data",
+        }) + "\n"
+      );
+    }
+
+    return new Promise((resolve, reject) => {
+      const handler = (packet) => {
+        if (packet?.data?.event === "scales_result" && packet.data?.data) {
+          console.log(packet?.data?.event);
+          this.removeListener("packet", handler);
+          return resolve(packet.data?.data);
+        }
+      };
+
+      this.on("packet", handler);
+      setTimeout(() => {
+        this.removeListener("packet", handler);
+        return reject("Timeout");
+      }, 10000);
+    });
+  }
+
+  async getCurrentData() {
+    if (this.process) {
+      this.process.stdin.write(
+        JSON.stringify({
+          cmd: "get_current_data",
+        }) + "\n"
+      );
+    }
+
+    return new Promise((resolve, reject) => {
+      const handler = (packet) => {
+        if (
+          packet?.data?.event === "current_data_result" &&
+          packet.data?.data
+        ) {
+          console.log(packet?.data?.event);
+          this.removeListener("packet", handler);
+          return resolve(packet.data?.data);
+        }
+      };
+
+      this.on("packet", handler);
+      setTimeout(() => {
+        this.removeListener("packet", handler);
+        return reject("Timeout");
+      }, 10000);
+    });
+  }
+
   async requestPlotImg(data) {
     if (this.process) {
       this.process.stdin.write(

@@ -1,3 +1,9 @@
+import {
+  geomagnetic_storm_impacts,
+  radio_blackout_impacts,
+  solar_radiation_storm_impacts,
+} from "./impacts";
+
 export const durations = [
   "2 hours",
   "6 hours",
@@ -11,13 +17,19 @@ export const durations = [
   "All",
 ];
 
-export interface relationType {
-  value: string;
-  name: string | string[];
-  parameters: string[] | string[][];
-}
+export const scalesTitles = {
+  R: "Radio Blackout Impacts",
+  S: "Solar Radiation Storm Impacts",
+  G: "Geomagnetic Storm Impacts",
+};
 
-export const relations = [
+export const scalesContents = {
+  R: radio_blackout_impacts,
+  S: solar_radiation_storm_impacts,
+  G: geomagnetic_storm_impacts,
+};
+
+export const relations: relation[] = [
   {
     value: "Kp",
     name: "Kp",
@@ -43,6 +55,14 @@ export const relations = [
     name: "Temperature (K)",
     parameters: ["temperature"],
   },
+  {
+    value: "ssn",
+    name: "SSN",
+    parameters: ["ssn"],
+  },
+  {
+    value: "f10.7",
+    name: "F10.7",
+    parameters: ["f10.7"],
+  },
 ];
-
-export const parameters = ["Kp"];

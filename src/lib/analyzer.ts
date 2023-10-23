@@ -1,10 +1,10 @@
-export const eventRelation = {
+export const eventRelation: relation = {
   value: "event",
   name: "LMN Event",
   parameters: [["Bl", "v_l"]],
 };
 
-export const relations = [
+export const relations: relation[] = [
   {
     value: "mr_events_sum",
     name: "MR Events Histogram",

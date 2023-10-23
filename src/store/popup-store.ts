@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
-interface PopupStore {
+interface State {
   isOpen: boolean;
   toggle: () => void;
   close: () => void;
   open: () => void;
 }
 
-export const usePopupStore = create<PopupStore>((set) => ({
+export const usePopupStore = create<State>((set) => ({
   isOpen: false,
   toggle: () => set((state) => ({ isOpen: !state.isOpen })),
   close: () => set({ isOpen: false }),

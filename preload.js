@@ -41,6 +41,12 @@ contextBridge.exposeInMainWorld("prediction", {
   requestPlotImg: async (data) => {
     return ipcRenderer.invoke("pr-request-plot-img", data);
   },
+  getScalesData: async () => {
+    return ipcRenderer.invoke("pr-get-scales-data");
+  },
+  getCurrentData: async () => {
+    return ipcRenderer.invoke("pr-get-current-data");
+  },
   plot: () => {
     ipcRenderer.send("pr-request-plot");
   },

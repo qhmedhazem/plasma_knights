@@ -1,10 +1,7 @@
 "use client";
 
-import { BarChart3, LucideChevronLeftSquare, X } from "lucide-react";
-
+import { BarChart3, LucideChevronLeftSquare } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-
 import { isSupported } from "@/store/mr-probability-store";
 import { usePopupStore } from "@/store/popup-store";
 import PopupOverlay from "@/components/Popup/PopupOverlay";
@@ -12,10 +9,10 @@ import PlotControls from "@/components/Analyzer/PlotControls";
 import PlotImg from "@/components/Analyzer/PlotImg";
 import { relations } from "@/lib/prediction";
 import { usePredictionStore } from "@/store/pr-store";
+import CurrentData from "@/components/Prediction/CurrentData";
+import ScalesList from "@/components/Prediction/ScalesList";
 
-type CardProps = React.ComponentProps<typeof Card>;
-
-export default function DataPage({ className, ...props }: CardProps) {
+export default function DataPage() {
   const reset = usePredictionStore((state) => state.reset);
 
   const currentRelation = usePredictionStore((state) => state.current_relation);
@@ -77,20 +74,28 @@ export default function DataPage({ className, ...props }: CardProps) {
         ) : null}
       </div>
       <PopupOverlay>
-        <PlotControls
-          currentRelation={currentRelation}
-          setCurrentRelation={setCurrentRelation}
-          relations={relations}
-        />
-        <PlotImg
-          currentRelation={currentRelation}
-          plotImage={plotImage}
-          requestPlotImg={requestPlotImg}
-          setCurrentRelation={setCurrentRelation}
-          showPlot={showPlot}
-          status={status}
-          relations={relations}
-        />
+        <div className="mb-8">
+          <CurrentData />
+        </div>
+        <div className="w-full flex flex-col-reverse xl:flex-row xl:items-start gap-8 space-betwee">
+          <PlotControls
+            currentRelation={currentRelation}
+            setCurrentRelation={setCurrentRelation}
+            relations={relations}
+          />
+          <PlotImg
+            currentRelation={currentRelation}
+            plotImage={plotImage}
+            requestPlotImg={requestPlotImg}
+            setCurrentRelation={setCurrentRelation}
+            showPlot={showPlot}
+            status={status}
+            relations={relations}
+          />
+        </div>
+        <div className="my-8">
+          <ScalesList />
+        </div>
       </PopupOverlay>
     </div>
   );

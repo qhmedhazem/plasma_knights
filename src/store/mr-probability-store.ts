@@ -33,31 +33,6 @@ const requestLmnPlotImgIPC =
       window?.magneticReconnection?.requestLmnPlotImg
     : undefined;
 
-export type Status = "idle" | "loading" | "success" | "error";
-
-export interface ResponseData {
-  coordinates_tests: {
-    count: number;
-    data: string[];
-  };
-  lmn_tests: {
-    count: number;
-    data: string[];
-  };
-}
-
-export type Message = {
-  event: string;
-  data: any;
-};
-
-export type EventData = Message | string;
-
-export interface Event {
-  event: string;
-  data: EventData;
-}
-
 interface State {
   is_supported: boolean;
   status: Status;
@@ -76,7 +51,7 @@ interface State {
   current_plot_image: string;
   showPlot: () => any;
   requestPlotImg: (
-    relation: string[] | string[][] | undefined
+    relation: relationParams | undefined
   ) => Promise<string | undefined>;
   requestLmnPlotImg: (query: { index: number; columns: string[] }) => any;
 

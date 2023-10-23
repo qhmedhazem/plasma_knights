@@ -2,17 +2,13 @@
 import React, { FC, useMemo, useState } from "react";
 import { ArrowBigRight, Check, Plus, X } from "lucide-react";
 
-import {
-  ResponseData,
-  useProbabilityStore,
-} from "@/store/mr-probability-store";
+import { useProbabilityStore } from "@/store/mr-probability-store";
 import { cn } from "@/lib/utils";
-import { relationType } from "@/lib/prediction";
 import EventsSelector from "./EventsSelector";
 
 interface Props {
   response?: ResponseData;
-  relations: relationType[];
+  relations: relation[];
   currentRelation: string | number;
   setCurrentRelation: (relation: string | number) => any;
 }

@@ -136,6 +136,14 @@ app.whenReady().then(() => {
     const result = await predictior.requestPlotImg(data);
     return result;
   });
+  ipcMain.handle("pr-get-scales-data", async (event) => {
+    const result = await predictior.getScalesData();
+    return result;
+  });
+  ipcMain.handle("pr-get-current-data", async (event) => {
+    const result = await predictior.getCurrentData();
+    return result;
+  });
 
   createWindow();
 

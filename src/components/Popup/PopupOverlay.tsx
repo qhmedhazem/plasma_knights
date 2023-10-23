@@ -5,8 +5,6 @@ import { PanInfo, motion, useMotionValue, useTransform } from "framer-motion";
 import { usePopupStore } from "@/store/popup-store";
 import { Button } from "../ui/Button";
 import { X } from "lucide-react";
-import PlotImg from "../Analyzer/PlotImg";
-import PlotControls from "../Analyzer/PlotControls";
 
 interface Props {
   children: React.ReactNode;
@@ -15,23 +13,6 @@ interface Props {
 const PopupOverlay: FC<Props> = ({ children }) => {
   const isOpen = usePopupStore((state) => state.isOpen);
   const closePopup = usePopupStore((state) => state.close);
-
-  const [dragging, setDragging] = useState(false);
-  const y = useMotionValue(0);
-
-  const handleDragStart = () => {
-    setDragging(true);
-  };
-
-  const handleDragEnd = (
-    event: MouseEvent | TouchEvent | PointerEvent,
-    info: PanInfo
-  ) => {
-    setDragging(false);
-    if (y.get() > 120) {
-      closePopup();
-    }
-  };
 
   return (
     <motion.div
@@ -75,9 +56,7 @@ const PopupOverlay: FC<Props> = ({ children }) => {
           </Button>
         </div>
         {/* {isOpen && ( */}
-        <div className="max-h-full flex flex-col-reverse xl:flex-row xl:items-start gap-8 space-between w-full py-8 px-8">
-          {children}
-        </div>
+        <div className="py-8 px-8">{children}</div>
         {/* )} */}
       </motion.div>
     </motion.div>

@@ -1,10 +1,7 @@
 "use client";
 
-import { BarChart3, LucideChevronLeftSquare, X } from "lucide-react";
-
+import { BarChart3, LucideChevronLeftSquare } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-
 import { isSupported, useProbabilityStore } from "@/store/mr-probability-store";
 import { usePopupStore } from "@/store/popup-store";
 import PopupOverlay from "@/components/Popup/PopupOverlay";
@@ -12,9 +9,7 @@ import PlotControls from "@/components/Analyzer/PlotControls";
 import PlotImg from "@/components/Analyzer/PlotImg";
 import { relations } from "@/lib/analyzer";
 
-type CardProps = React.ComponentProps<typeof Card>;
-
-export default function DataPage({ className, ...props }: CardProps) {
+export default function DataPage() {
   const response = useProbabilityStore((state) => state.response);
   const reset = useProbabilityStore((state) => state.reset);
 
@@ -98,22 +93,24 @@ export default function DataPage({ className, ...props }: CardProps) {
       </div>
 
       <PopupOverlay>
-        <PlotControls
-          response={response}
-          currentRelation={currentRelation}
-          setCurrentRelation={setCurrentRelation}
-          relations={relations}
-        />
-        <PlotImg
-          currentRelation={currentRelation}
-          plotImage={plotImage}
-          requestPlotImg={requestPlotImg}
-          requestLmnPlotImg={requestLmnPlotImg}
-          setCurrentRelation={setCurrentRelation}
-          showPlot={showPlot}
-          status={status}
-          relations={relations}
-        />
+        <div className="w-full flex flex-col-reverse xl:flex-row xl:items-start gap-8 space-betwee">
+          <PlotControls
+            response={response}
+            currentRelation={currentRelation}
+            setCurrentRelation={setCurrentRelation}
+            relations={relations}
+          />
+          <PlotImg
+            currentRelation={currentRelation}
+            plotImage={plotImage}
+            requestPlotImg={requestPlotImg}
+            requestLmnPlotImg={requestLmnPlotImg}
+            setCurrentRelation={setCurrentRelation}
+            showPlot={showPlot}
+            status={status}
+            relations={relations}
+          />
+        </div>
       </PopupOverlay>
     </div>
   );

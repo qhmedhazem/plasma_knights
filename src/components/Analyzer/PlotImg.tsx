@@ -3,14 +3,12 @@ import React, { FC, useEffect } from "react";
 import { Skeleton } from "../ui/Skeleton";
 import { eventRelation } from "@/lib/analyzer";
 import { Loader2 } from "lucide-react";
-import { Status } from "@/store/mr-probability-store";
-import { relationType } from "@/lib/prediction";
 
 interface Props {
   status: Status;
   plotImage: string;
   currentRelation: string | number;
-  relations: relationType[];
+  relations: relation[];
   setCurrentRelation: (relation: string) => any;
   requestPlotImg: (
     relation: string[] | string[][] | undefined

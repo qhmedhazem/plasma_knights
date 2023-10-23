@@ -21,26 +21,28 @@ const requestPlotImgIPC =
     ? // @ts-ignore
       window?.prediction?.requestPlotImg
     : undefined;
-
-type Status = "idle" | "loading" | "success" | "error";
-
-export type Message = {
-  event: string;
-  data: any;
-};
-
-export type EventData = Message | string;
-
-export interface Event {
-  event: string;
-  data: EventData;
-}
+const getCurrentDataIPC =
+  typeof window !== "undefined"
+    ? // @ts-ignore
+      window?.prediction?.getCurrentData
+    : undefined;
+const getScalesDataIPC =
+  typeof window !== "undefined"
+    ? // @ts-ignore
+      window?.prediction?.getScalesData
+    : undefined;
 
 interface State {
   is_supported: boolean;
   status: Status;
   last_event: Event | undefined;
   current_message: string;
+
+  scales: Scale[];
+  getScalesData: () => Promise<any>;
+
+  current_data: any;
+  getCurrentData: () => Promise<any>;
 
   requestData: (duration: string) => any;
   reset: () => any;
@@ -53,7 +55,7 @@ interface State {
   current_plot_image: string;
   showPlot: () => any;
   requestPlotImg: (
-    relation: string[] | string[][] | undefined
+    relation: relationParams | undefined
   ) => Promise<string | undefined>;
 
   //
@@ -62,6 +64,7 @@ interface State {
 
 export const ProbabilityMessageHandler = (message: Message) => {
   const setState = usePredictionStore.setState;
+  console.log(message.event);
   switch (message.event) {
     case "importing_data":
       return `Importing data... - ${message.data?.duration}`;
@@ -70,7 +73,7 @@ export const ProbabilityMessageHandler = (message: Message) => {
     case "error":
       return "Error: " + message.data;
     case "plot_img_approved":
-      setState({
+      return setState({
         current_plot_image: message?.data?.img,
       });
     case "finished":
@@ -78,9 +81,10 @@ export const ProbabilityMessageHandler = (message: Message) => {
         status: "success",
         current_message: "Finished",
       });
-      // requestPlotImgIPC();
       usePopupStore.setState({ isOpen: true });
       return "Finished";
+    default:
+      return;
   }
 };
 
@@ -91,6 +95,40 @@ export const usePredictionStore = create(
       status: "idle",
       last_event: undefined,
       current_message: "",
+
+      current_data: {},
+      getCurrentData: async () => {
+        return getCurrentDataIPC()
+          .then((response: any) => {
+            if (response) {
+              set({
+                current_data: response,
+              });
+              return response;
+            }
+          })
+          .catch((err: any) => undefined);
+      },
+
+      scales: [],
+      getScalesData: async () => {
+        return getScalesDataIPC()
+          .then((response: any) => {
+            if (response) {
+              set({
+                scales: Object.values(response).map((item: any) => ({
+                  date: item.DateStamp,
+                  time: item.TimeStamp,
+                  G: item.G,
+                  R: item.R,
+                  S: item.S,
+                })),
+              });
+              return;
+            }
+          })
+          .catch((err: any) => undefined);
+      },
 
       requestData: (duration) => requestDataIPC(duration),
       reset: () => {

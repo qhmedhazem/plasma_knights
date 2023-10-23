@@ -10,6 +10,7 @@ import argparse
 base_url = "https://services.swpc.noaa.gov/text/rtsw/data/"
 
 durations = [
+    {"name": "5 minutes", "duration": timedelta(minutes=5)},
     {"name": "2 hours", "duration": timedelta(hours=2)},
     {"name": "6 hours", "duration": timedelta(hours=6)},
     {"name": "1 day", "duration": timedelta(days=1)},
@@ -67,8 +68,12 @@ plasma_columns = set(
     ]
 )
 
+ssn_columns = set(["ssn"])
+flux_10_7_columns = set(["f10.7"])
+
 
 class DurationEnum(Enum):
+    minutes5 = "5min"
     hours2 = "2 hours"
     hours6 = "6 hours"
     day = "1 day"
@@ -82,6 +87,8 @@ class DurationEnum(Enum):
 
 
 def get_time_path(duration: DurationEnum):
+    if duration == DurationEnum.minutes5 or duration == DurationEnum.minutes5.value:
+        return "-1-day-5-minute.json"
     if duration == DurationEnum.hours2 or duration == DurationEnum.hours2.value:
         return "-2-hour.i.json"
     elif duration == DurationEnum.hours6 or duration == DurationEnum.hours6.value:
@@ -125,6 +132,37 @@ def convert_to_df(data: any) -> pd.DataFrame:
     return df
 
 
+def get_sunspot_df():
+    results = requests.get(
+        url="https://services.swpc.noaa.gov/json/solar-cycle/sunspots.json"
+    ).json()
+    indexes = list(map(lambda x: datetime.strptime(x["time-tag"], "%Y-%m"), results))
+    columns = ["ssn"]
+    values = list(map(lambda x: [x["ssn"]], results))
+    return pd.DataFrame(data=values, columns=columns, index=indexes)
+
+
+def get_flux_10_7_df():
+    results = requests.get(
+        url="https://services.swpc.noaa.gov/json/solar-cycle/f10-7cm-flux.json"
+    ).json()
+    indexes = list(map(lambda x: datetime.strptime(x["time-tag"], "%Y-%m"), results))
+    columns = ["f10.7"]
+    values = list(map(lambda x: [x["f10.7"]], results))
+    return pd.DataFrame(data=values, columns=columns, index=indexes)
+
+
+def get_sunspot_df():
+    results = requests.get(
+        url="https://services.swpc.noaa.gov/json/solar-cycle/sunspots.json"
+    ).json()
+    indexes = list(map(lambda x: datetime.strptime(x["time-tag"], "%Y-%m"), results))
+    columns = ["ssn"]
+    values = list(map(lambda x: [float(x["ssn"])], results))
+    # print(values)
+    return pd.DataFrame(data=values, columns=columns, index=indexes)
+
+
 def main(duration: DurationEnum):
     duration_str = duration
     if isinstance(duration, DurationEnum):
@@ -140,6 +178,8 @@ def main(duration: DurationEnum):
     mag_df = convert_to_df(mag_data)
     plasma_df = convert_to_df(plasma_data)
     kp_df = convert_to_df(kp_data)
+    ssn_df = get_sunspot_df()
+    flux_10_7_df = get_flux_10_7_df()
 
     # merged_data: pd.DataFrame = pd.concat(
     #     [mag_df, plasma_df, kp_df], ignore_index=False
@@ -159,6 +199,8 @@ def main(duration: DurationEnum):
             "mag_df": mag_df,
             "plasma_df": plasma_df,
             "kp_df": kp_df,
+            "ssn_df": ssn_df,
+            "flux_10_7_df": flux_10_7_df
             # "dataframe": merged_data
             #
         }
@@ -178,7 +220,58 @@ def parameter_to_request(params: list[str | list[str]], data: dict[pd.DataFrame]
             results.append(dict({"data": data["plasma_df"], "columns_to_plot": param}))
         elif set(param).issubset(kp_columns):
             results.append(dict({"data": data["kp_df"], "columns_to_plot": param}))
+        elif set(param).issubset(ssn_columns):
+            results.append(dict({"data": data["ssn_df"], "columns_to_plot": param}))
+        elif set(param).issubset(flux_10_7_columns):
+            results.append(
+                dict({"data": data["flux_10_7_df"], "columns_to_plot": param})
+            )
     return results
+
+
+def get_scales_data():
+    return requests.get(
+        url="https://services.swpc.noaa.gov/products/noaa-scales.json"
+    ).json()
+
+
+def get_solar_cycle_data():
+    results = requests.get(
+        url="https://services.swpc.noaa.gov/json/solar-cycle/observed-solar-cycle-indices.json"
+    ).json()
+    return results[len(results) - 1]
+
+
+def get_10cm_flux():
+    #
+    results = requests.get(
+        url="https://services.swpc.noaa.gov/products/summary/10cm-flux.json"
+    ).json()
+    return {"f10.7": results["Flux"]}
+
+
+def data_to_dict(data: list[list[str]]):
+    result = {}
+    columns = data[0]
+    last_update = data[len(data) - 1]
+    for i in range(len(columns)):
+        result[columns[i]] = last_update[i]
+    return result
+
+
+def get_current_data():
+    mag_data = requests.get(get_mag_path(DurationEnum.minutes5)).json()
+    plasma_data = requests.get(get_plasma_path(DurationEnum.minutes5)).json()
+    kp_data = requests.get(get_kp_path(DurationEnum.minutes5)).json()
+    solar_cycle_data = get_solar_cycle_data()
+    # merge dicts
+    return {
+        **data_to_dict(kp_data),
+        **data_to_dict(plasma_data),
+        **data_to_dict(mag_data),
+        **solar_cycle_data,
+        **get_10cm_flux(),
+    }
 
 
 parser = argparse.ArgumentParser()
@@ -210,6 +303,14 @@ if __name__ == "__main__":
             cmd = cmd_payload.get("cmd")
             if cmd == "eval":
                 exec(cmd_payload.get("data"))
+            elif cmd == "get_current_data":
+                log(
+                    json.dumps(
+                        {"event": "current_data_result", "data": get_current_data()}
+                    )
+                )
+            elif cmd == "get_scales_data":
+                log(json.dumps({"event": "scales_result", "data": get_scales_data()}))
             elif cmd == "request_plot_img":
                 columns_to_plot = cmd_payload.get("data") or DEFAULT_PLOTTED_COLUMNS
                 # plot_request = parameters_to_request(columns_to_plot, data)

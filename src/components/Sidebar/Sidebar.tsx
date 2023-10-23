@@ -14,7 +14,7 @@ import {
   Wind,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { NavData } from "@/lib/articles/navigation-data";
+import { NavData } from "@/lib/navigation-data";
 import SidebarExpandList from "./SidebarExpandList";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/store/sidebar-store";

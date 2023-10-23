@@ -9,6 +9,18 @@ import io
 
 DEFAULT_PLOTTED_COLUMNS = ["kp", ["bt", "bx_gsm"], "by_gsm"]
 BAR_COLUMNS = ["kp"]
+SCATTER_COLUMNS = [
+    "bt",
+    "bx_gsm",
+    "by_gsm",
+    "bz_gsm",
+    "speed",
+    "density",
+    "lat_gsm",
+]
+YEAR_BASED_COLUMNS = ["ssn"]
+YEAR_MONTH_BASED_COLUMNS = ["f10.7"]
+
 
 index_to_colors = ["b", "g", "r", "c", "m", "y", "k", "w"]
 
@@ -32,6 +44,7 @@ def plot_kp_bar_data(ax: Axes, column_name: str, series: pd.Series, c_index: int
     elif c_index > 1:
         print("Maximum allowed relationships parameters is 2!")
         return
+
     try:
         for i in series.index:
             start = i
@@ -47,6 +60,7 @@ def plot_kp_bar_data(ax: Axes, column_name: str, series: pd.Series, c_index: int
             )
         x_format = md.DateFormatter("%d/%m \n %H:%M")
         ax.xaxis.set_major_formatter(x_format)
+        ax.set_ylim(0, 9)
         ax.set_ylabel(column_name, color=index_to_colors[c_index])
 
     except Exception as e:
@@ -68,7 +82,31 @@ def plot_to_ax(ax: Axes, column_name: str, data: pd.DataFrame, c_index: int = 0)
         color=index_to_colors[c_index],
         linewidth=1,
     )
+    x_format = md.DateFormatter("%d/%m \n %H:%M")
+    if column_name in YEAR_BASED_COLUMNS:
+        x_format = md.DateFormatter("%Y")
+    if column_name in YEAR_MONTH_BASED_COLUMNS:
+        x_format = md.DateFormatter("%Y-%m")
+    ax.xaxis.set_major_formatter(x_format)
+    ax.set_ylabel(column_name, color=index_to_colors[c_index])
 
+
+def plot_scatter_to_ax(
+    ax: Axes, column_name: str, data: pd.DataFrame, c_index: int = 0
+):
+    if c_index == 1:
+        ax = ax.twinx()
+    elif c_index > 1:
+        print("Maximum allowed relationships parameters is 2!")
+        return
+
+    ax.scatter(
+        data.index,  # Assuming 'data.index' is used for x-axis values
+        data[column_name],
+        label=column_name,
+        color=index_to_colors[c_index],
+        s=2,  # Adjust the marker size as needed
+    )
     x_format = md.DateFormatter("%d/%m \n %H:%M")
     ax.xaxis.set_major_formatter(x_format)
     ax.set_ylabel(column_name, color=index_to_colors[c_index])
@@ -113,6 +151,13 @@ def plot_imported_data(data: list[dict], duration: timedelta):
                             d["data"][column[c_index]],
                             c_index=c_index,
                         )
+                    elif column[c_index] in SCATTER_COLUMNS:
+                        plot_scatter_to_ax(
+                            ax=ax,
+                            column_name=column[c_index],
+                            data=d["data"],
+                            c_index=c_index,
+                        )
                     else:
                         plot_to_ax(
                             ax=ax,
@@ -120,6 +165,7 @@ def plot_imported_data(data: list[dict], duration: timedelta):
                             data=d["data"],
                             c_index=c_index,
                         )
+
             else:
                 if column in BAR_COLUMNS:
                     plot_kp_bar_data(
@@ -128,9 +174,19 @@ def plot_imported_data(data: list[dict], duration: timedelta):
                         d["data"][column],
                         c_index=c_index,
                     )
+                elif column in SCATTER_COLUMNS:
+                    plot_scatter_to_ax(
+                        ax=ax,
+                        column_name=column,
+                        data=d["data"],
+                        c_index=c_index,
+                    )
                 else:
                     plot_to_ax(
-                        ax=ax, column_name=column, data=d["data"], c_index=c_index
+                        ax=ax,
+                        column_name=column,
+                        data=d["data"],
+                        c_index=c_index,
                     )
         ax_index += 1
 
