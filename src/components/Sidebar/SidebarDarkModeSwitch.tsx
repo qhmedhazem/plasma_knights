@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import React, { FC } from "react";
-import { LucideIcon, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const SidebarDarkModeSwitch: FC = () => {

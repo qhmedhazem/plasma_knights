@@ -1,7 +1,7 @@
 "use client";
 import React, { FC, useEffect } from "react";
 import { Skeleton } from "../ui/Skeleton";
-import { eventRelation } from "@/lib/analyzer";
+import { eventRelation } from "@/lib/mr-analyzer";
 import { Loader2 } from "lucide-react";
 
 interface Props {

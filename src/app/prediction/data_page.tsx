@@ -4,7 +4,7 @@ import { BarChart3, LucideChevronLeftSquare } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { isSupported } from "@/store/mr-probability-store";
 import { usePopupStore } from "@/store/popup-store";
-import PopupOverlay from "@/components/Popup/PopupOverlay";
+import PopupOverlay from "@/components/PopupOverlay";
 import PlotControls from "@/components/Analyzer/PlotControls";
 import PlotImg from "@/components/Analyzer/PlotImg";
 import { relations } from "@/lib/prediction";

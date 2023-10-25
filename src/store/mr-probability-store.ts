@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { usePopupStore } from "./popup-store";
-import { relations } from "@/lib/analyzer";
+import { relations } from "@/lib/mr-analyzer";
 
 export const isSupported =
   // @ts-ignore
@@ -38,16 +38,14 @@ interface State {
   status: Status;
   last_event: Event | undefined;
   current_message: string;
-  response: ResponseData | undefined;
 
+  response: ResponseData | undefined;
   requestData: (start_date: string, end_date: string) => any;
   reset: () => any;
 
-  //  relations
   current_relation: string | number;
   setCurrentRelation: (relation: string | number) => any;
 
-  // plots
   current_plot_image: string;
   showPlot: () => any;
   requestPlotImg: (
@@ -55,7 +53,6 @@ interface State {
   ) => Promise<string | undefined>;
   requestLmnPlotImg: (query: { index: number; columns: string[] }) => any;
 
-  //
   pushEvent: (event: Event) => any;
 }
 

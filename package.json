@@ -37,6 +37,7 @@
     ]
   },
   "scripts": {
+    "install": "npm install && pip install -r requirements.txt",
     "lint": "next lint",
     "dev:next": "next dev",
     "dev:electron": "SET NODE_ENV=development && nodemon --ignore src --ignore .next --exec electron .",

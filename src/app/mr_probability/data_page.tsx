@@ -4,10 +4,10 @@ import { BarChart3, LucideChevronLeftSquare } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { isSupported, useProbabilityStore } from "@/store/mr-probability-store";
 import { usePopupStore } from "@/store/popup-store";
-import PopupOverlay from "@/components/Popup/PopupOverlay";
+import PopupOverlay from "@/components/PopupOverlay";
 import PlotControls from "@/components/Analyzer/PlotControls";
 import PlotImg from "@/components/Analyzer/PlotImg";
-import { relations } from "@/lib/analyzer";
+import { relations } from "@/lib/mr-analyzer";
 
 export default function DataPage() {
   const response = useProbabilityStore((state) => state.response);

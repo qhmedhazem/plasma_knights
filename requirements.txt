@@ -1,8 +1,6 @@
+argparse
 requests
 pandas
 matplotlib
 numpy
-sqlite3
-cdasws
-cdflib
 xarray
