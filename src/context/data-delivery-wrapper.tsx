@@ -1,13 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import {
-  Event,
-  EventData,
-  useProbabilityStore,
-} from "../store/probability-store";
-import useIpc from "@/hooks/use-ipc";
+import { useEffect } from "react";
+import { useProbabilityStore } from "../store/mr-probability-store";
+import { usePredictionStore } from "@/store/pr-store";
 
 interface DataDeliveryWrapperProps {
   children: React.ReactNode;
@@ -16,18 +11,26 @@ interface DataDeliveryWrapperProps {
 export default function DataDeliveryWrapper({
   children,
 }: DataDeliveryWrapperProps) {
-  const { setupDataListner } = useIpc();
-  const pushEvent = useProbabilityStore((state) => state.pushEvent);
-
+  const MrPushEvent = useProbabilityStore((state) => state.pushEvent);
+  const PrPushEvent = usePredictionStore((state) => state.pushEvent);
   useEffect(() => {
+    const setupDataListner =
+      typeof window !== "undefined"
+        ? // @ts-ignore
+          window?.eventsDelivery?.setupDataListner
+        : undefined;
     if (setupDataListner) {
-      setupDataListner((data: Event) => {
-        console.log("Data Delivered", data);
-        return pushEvent(data);
+      setupDataListner(([type, data]: [string, Event]) => {
+        console.log(type, data);
+        if (type === "mr") {
+          return MrPushEvent(data);
+        } else if (type === "pr") {
+          return PrPushEvent(data);
+        }
       });
     }
     return () => undefined;
-  }, [setupDataListner]);
+  }, [MrPushEvent, PrPushEvent]);
 
   return <>{children}</>;
 }

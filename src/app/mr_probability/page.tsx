@@ -1,20 +1,19 @@
 "use client";
 
-import { useProbabilityStore } from "@/store/probability-store";
-import { InputPage } from "./input_page";
-import { DataPage } from "./data_page";
-
-export type DataState = "idle" | "loading" | "error" | "success";
+import dynamic from "next/dynamic";
+import { useProbabilityStore } from "@/store/mr-probability-store";
+const InputPage = dynamic(() => import("./input_page"), { ssr: false });
+const DataPage = dynamic(() => import("./data_page"), { ssr: false });
 
 export default function Home() {
   const status = useProbabilityStore((state) => state.status);
 
   return (
     <main>
-      {status === "idle" || status === "loading" ? (
+      {status === "idle" || status === "loading" || status === "error" ? (
         <InputPage disabled={status === "loading"} className="m-[0_auto]" />
       ) : null}
-      {status === "success" ? <DataPage className="m-[0_auto]" /> : null}
+      {status === "success" ? <DataPage /> : null}
     </main>
   );
 }

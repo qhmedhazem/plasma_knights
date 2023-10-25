@@ -1,20 +1,76 @@
 {
-  "name": "plasma_knights_ui",
-  "version": "0.1.0",
-  "private": true,
+  "name": "plasma_knights",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "main.js",
+  "description": "App analyze the magnetic reconnection event in specific time",
+  "build": {
+    "appId": "nasaspaceapps.plasma_knights",
+    "files": [
+      "out/**/*",
+      "main.js",
+      "preload.js",
+      "analyzer_communication.js",
+      "prediction_communication.js"
+    ],
+    "win": {
+      "icon": "out/favicon.ico",
+      "target": [
+        "portable"
+      ]
+    },
+    "extraFiles": [
+      {
+        "from": "./binary/mr_analyzer",
+        "to": "mr_analyzer",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "./binary/predictior",
+        "to": "predictior",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  },
   "scripts": {
-    "dev": "concurrently \"npm run --prefix electron dev\" \"next dev\"",
-    "build": "next build && npm run --prefix electron dist",
-    "start": "next start",
-    "lint": "next lint"
+    "install": "npm install && pip install -r requirements.txt",
+    "lint": "next lint",
+    "dev:next": "next dev",
+    "dev:electron": "SET NODE_ENV=development && nodemon --ignore src --ignore .next --exec electron .",
+    "dev": "concurrently \"npm run dev:next\" \"npm run dev:electron\"",
+    "build:binary": "./binary_build.bat",
+    "build:electron": "electron-builder",
+    "build:next": "next build",
+    "build": "npm run build:binary && npm run build:next && npm run build:electron",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "pack": "electron-builder --dir"
   },
   "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.4.2",
+    "@electron-forge/maker-deb": "^6.4.2",
+    "@electron-forge/maker-rpm": "^6.4.2",
+    "@electron-forge/maker-squirrel": "^6.4.2",
+    "@electron-forge/maker-zip": "^6.4.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
+    "@hookform/resolvers": "^3.3.1",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-navigation-menu": "^1.1.4",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-switch": "^1.0.3",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "@types/body-parser": "^1.19.3",
     "@types/express": "^4.17.18",
     "@types/node": "20.8.2",
     "@types/react": "18.2.24",
@@ -22,36 +78,31 @@
     "@types/react-plotly.js": "^2.6.1",
     "autoprefixer": "10.4.16",
     "bufferutil": "^4.0.7",
-    "chart.js": "^4.4.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "electron": "^26.3.0",
+    "electron-builder": "^24.6.4",
+    "electron-squirrel-startup": "^1.0.0",
     "eslint": "8.50.0",
     "eslint-config-next": "^13.4.19",
-    "express": "^4.18.2",
-    "JSONStream": "^1.3.5",
+    "framer-motion": "^10.16.4",
     "lucide-react": "^0.284.0",
     "next": "^13.4.19",
     "next-themes": "^0.2.1",
     "nextjs-toploader": "^1.4.2",
-    "plotly.js": "^2.26.2",
+    "node-ts": "^6.0.1",
+    "nodemon": "^3.0.1",
     "postcss": "8.4.31",
-    "react": "18.2.0",
+    "react": "^18.2.0",
     "react-dom": "18.2.0",
-    "react-plotly.js": "^2.6.0",
-    "socket.io": "^4.7.2",
-    "socket.io-client": "^4.7.2",
+    "react-form-hook": "^0.0.1",
+    "react-hook-form": "^7.47.0",
     "tailwind-merge": "^1.14.0",
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.2.2",
     "utf-8-validate": "^5.0.10",
+    "zod": "^3.22.4",
     "zustand": "^4.4.2"
-  },
-  "devDependencies": {
-    "@types/body-parser": "^1.19.3",
-    "dotenv": "^16.3.1",
-    "node-ts": "^6.0.1",
-    "nodemon": "^3.0.1"
   }
 }

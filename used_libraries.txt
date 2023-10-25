@@ -1,0 +1,31 @@
+APP
+electron (https://npmjs.com/package/electron) & electron-forge
+electron-builder (https://www.npmjs.com/package/electron-builder)
+
+FRONT END
+typescript (https://www.typescriptlang.org/)
+nextjs (https://nextjs.org/)
+react (https://reactjs.org/)
+shadcn ui (https://ui.shadcn.com/)
+radix-ui (https://www.radix-ui.com/)
+next-themes (https://npmjs.com/package/next-themes)
+tailwindcss (https://tailwindcss.com/)
+zustand (https://npmjs.com/package/zustand)
+postcss (https://postcss.org/)
+autoprefixer (https://autoprefixer.github.io/)
+tailwind-merge (https://npmjs.com/package/tailwind-merge)
+tailwindcss-animate (https://npmjs.com/package/tailwindcss-animate)
+clsx (https://npmjs.com/package/clsx)
+lucide-react (https://npmjs.com/package/lucide-react)
+JSONStream (https://npmjs.com/package/JSONStream)
+
+PYTHON ANAYLZER
+
+requests (https://pypi.org/project/requests/)
+pandas (https://pandas.pydata.org/)
+matplotlib (https://matplotlib.org/)
+numpy (https://numpy.org/)
+sqlite3 (https://docs.python.org/3/library/sqlite3.html)
+cdasws (https://pypi.org/project/cdasws/)
+cdflib (https://pypi.org/project/cdflib/)
+xarray (https://pypi.org/project/xarray/)

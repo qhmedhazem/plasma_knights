@@ -1,0 +1,6 @@
+argparse
+requests
+pandas
+matplotlib
+numpy
+xarray

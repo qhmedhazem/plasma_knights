@@ -8,10 +8,6 @@
 # Old files
 /oldserver_files/
 
-# Electron Files
-/electron/dist/
-/electron/node_modules/
-
 # testing
 /coverage
 
@@ -21,6 +17,15 @@
 
 # production
 /build
+/dist
+
+# binary builder
+/binary
+/binary_cache
+
+# cache files
+/cache
+*/cache
 
 # misc
 .DS_Store
